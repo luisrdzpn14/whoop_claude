@@ -203,7 +203,21 @@ Paso 1: añádelo en la app de WHOOP y repite el Paso 3.
 
 ---
 
-## Paso 4 · Conéctalo a Claude Code
+## Paso 4 · Conéctalo a Claude
+
+Hay **dos aplicaciones distintas** y cada una guarda su configuración por
+separado. Puedes hacer solo una, o las dos:
+
+| | Qué es | Configúralo en |
+|---|---|---|
+| **Claude Code** | El asistente de programación (terminal, IDE o la pestaña Code de la app) | Paso 4a |
+| **Claude Desktop** | La app de chat de siempre | Paso 4b |
+
+Haz las dos si quieres poder preguntar tanto desde el chat normal como desde
+Claude Code. **No hace falta repetir el `auth`**: ambas leen los mismos tokens
+de `~/.whoop-mcp/`.
+
+### Paso 4a · Claude Code
 
 ```bash
 claude mcp add whoop --scope user -- npx.cmd -y whoop-mcp-unofficial@0.6.5
@@ -228,6 +242,50 @@ claude mcp list
 Debe decir `whoop: ... - ✔ Connected`.
 
 **Reinicia Claude Code** para que cargue las herramientas nuevas.
+
+### Paso 4b · Claude Desktop
+
+Aquí no hay comando: se edita un archivo a mano.
+
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+**Haz una copia del archivo antes de tocarlo.** Si el JSON queda mal formado,
+Claude Desktop no arrancará **ningún** MCP, ni siquiera los que ya tuvieras.
+
+Añade `whoop` dentro de `mcpServers`, conservando lo que ya hubiera:
+
+```json
+{
+  "mcpServers": {
+    "whoop": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "whoop-mcp-unofficial@0.6.5"]
+    }
+  }
+}
+```
+
+En **Mac o Linux**, el bloque es más simple:
+
+```json
+{
+  "mcpServers": {
+    "whoop": {
+      "command": "npx",
+      "args": ["-y", "whoop-mcp-unofficial@0.6.5"]
+    }
+  }
+}
+```
+
+> **Por qué `cmd /c` en Windows:** `npx` es un archivo `.bat` y muchas apps no
+> lo lanzan directamente. Envolverlo en `cmd /c` es el patrón fiable. (Aquí no
+> hay riesgo del bug del Paso 3: aquel se debía a una URL con `&`, y estos
+> argumentos no llevan ninguno.)
+
+**Cierra Claude Desktop del todo y vuelve a abrirla** — no basta con cerrar la
+ventana, hay que salir de la aplicación.
 
 ---
 
@@ -260,59 +318,17 @@ usarlo:
 
 | Dónde | ¿Funciona? | Por qué |
 |---|---|---|
-| **Claude Code** (terminal, IDE o app de escritorio) | ✅ Sí | Puede lanzar programas locales |
-| **Claude Desktop** (la app de chat normal) | ✅ Sí, tras el Paso 4b | Igual, pero usa su propia configuración |
+| **Claude Code** (terminal, IDE o la pestaña Code de la app) | ✅ Sí, con el Paso 4a | Puede lanzar programas locales |
+| **Claude Desktop** (la app de chat normal) | ✅ Sí, con el Paso 4b | Igual, pero usa su propia configuración |
 | **claude.ai en el navegador** | ❌ No | Se ejecuta en la nube y no puede alcanzar un programa de tu PC |
 | **App móvil** | ❌ No | Mismo motivo |
 
 Tampoco funciona en otro ordenador: los tokens viven en `~/.whoop-mcp/` de
 **esta** máquina. Si cambias de equipo, repites los pasos 2, 3 y 4.
 
-### Paso 4b · Añadirlo también a Claude Desktop
-
-El Paso 4 lo deja listo para Claude Code. Si además quieres preguntarle desde
-la app de chat de siempre, edita este archivo:
-
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-- **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-Y añade `whoop` dentro de `mcpServers`, respetando lo que ya hubiera:
-
-```json
-{
-  "mcpServers": {
-    "whoop": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "whoop-mcp-unofficial@0.6.5"]
-    }
-  }
-}
-```
-
-En **Mac o Linux** el bloque es más simple:
-
-```json
-{
-  "mcpServers": {
-    "whoop": {
-      "command": "npx",
-      "args": ["-y", "whoop-mcp-unofficial@0.6.5"]
-    }
-  }
-}
-```
-
-> **Por qué `cmd /c` en Windows:** `npx` es un archivo `.bat` y muchas apps no
-> lo lanzan directamente. Envolverlo en `cmd /c` es el patrón fiable. (Aquí no
-> hay riesgo del bug del Paso 3: aquel se debía a una URL con `&`, y estos
-> argumentos no llevan ninguno.)
-
-Haz una copia del archivo antes de tocarlo, y si el JSON queda mal formado
-Claude Desktop no arrancará ningún MCP. **Cierra la app del todo y vuelve a
-abrirla** — no basta con cerrar la ventana.
-
-No hace falta repetir el `auth`: ambos clientes leen los mismos tokens de
-`~/.whoop-mcp/`.
+Si te falta alguna de las dos aplicaciones, vuelve al
+[Paso 4](#paso-4--conéctalo-a-claude): el **4a** configura Claude Code y el
+**4b** Claude Desktop.
 
 ### Empezar una conversación
 
