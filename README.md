@@ -250,6 +250,119 @@ MCP se cargan bajo demanda y a veces no las ve hasta que las necesita.
 
 ---
 
+## Cómo se usa en el día a día
+
+### Dónde funciona y dónde no
+
+Esto es lo que más confunde al principio. El conector es **un programa que
+corre en tu ordenador**, no un servicio en internet. Eso decide dónde puedes
+usarlo:
+
+| Dónde | ¿Funciona? | Por qué |
+|---|---|---|
+| **Claude Code** (terminal, IDE o app de escritorio) | ✅ Sí | Puede lanzar programas locales |
+| **Claude Desktop** (la app de chat normal) | ✅ Sí, tras el Paso 4b | Igual, pero usa su propia configuración |
+| **claude.ai en el navegador** | ❌ No | Se ejecuta en la nube y no puede alcanzar un programa de tu PC |
+| **App móvil** | ❌ No | Mismo motivo |
+
+Tampoco funciona en otro ordenador: los tokens viven en `~/.whoop-mcp/` de
+**esta** máquina. Si cambias de equipo, repites los pasos 2, 3 y 4.
+
+### Paso 4b · Añadirlo también a Claude Desktop
+
+El Paso 4 lo deja listo para Claude Code. Si además quieres preguntarle desde
+la app de chat de siempre, edita este archivo:
+
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+Y añade `whoop` dentro de `mcpServers`, respetando lo que ya hubiera:
+
+```json
+{
+  "mcpServers": {
+    "whoop": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "whoop-mcp-unofficial@0.6.5"]
+    }
+  }
+}
+```
+
+En **Mac o Linux** el bloque es más simple:
+
+```json
+{
+  "mcpServers": {
+    "whoop": {
+      "command": "npx",
+      "args": ["-y", "whoop-mcp-unofficial@0.6.5"]
+    }
+  }
+}
+```
+
+> **Por qué `cmd /c` en Windows:** `npx` es un archivo `.bat` y muchas apps no
+> lo lanzan directamente. Envolverlo en `cmd /c` es el patrón fiable. (Aquí no
+> hay riesgo del bug del Paso 3: aquel se debía a una URL con `&`, y estos
+> argumentos no llevan ninguno.)
+
+Haz una copia del archivo antes de tocarlo, y si el JSON queda mal formado
+Claude Desktop no arrancará ningún MCP. **Cierra la app del todo y vuelve a
+abrirla** — no basta con cerrar la ventana.
+
+No hace falta repetir el `auth`: ambos clientes leen los mismos tokens de
+`~/.whoop-mcp/`.
+
+### Empezar una conversación
+
+No hay que "arrancar" nada ni escribir comandos. Abres Claude y preguntas:
+
+> ¿Cómo vengo de recuperación esta semana?
+
+Claude decide solo qué herramientas usar. La primera consulta de cada sesión
+tarda unos segundos más porque `npx` levanta el servidor.
+
+Algunas costumbres que ayudan:
+
+- **Di el periodo.** "Últimos 30 días" o "desde el 1 de agosto" da mejores
+  resultados que "últimamente".
+- **Encadena preguntas.** Dentro de una conversación mantiene el contexto:
+  puedes pedir un resumen y luego *"¿y por qué cayó el martes?"* sin repetirlo
+  todo.
+- **Pide el formato que quieras.** Tabla, CSV, gráfica, informe para tu
+  entrenador. No hay un formato fijo.
+- **Si dice que no está conectado**, pídele un dato concreto en vez de
+  preguntarle si lo está. Las herramientas se cargan bajo demanda.
+
+### Mantenimiento: ninguno
+
+Los tokens se renuevan solos mientras uses la conexión de vez en cuando. No
+tienes que repetir el `auth`.
+
+Solo tendrás que volver a autorizar si pasas **mucho tiempo sin usarlo** (el
+*refresh token* acaba caducando) o si revocas el acceso desde WHOOP. Se nota
+porque Claude devuelve un error de autorización. La solución es repetir el
+Paso 3, nada más.
+
+Para comprobar el estado en cualquier momento:
+
+```bash
+npx.cmd -y whoop-mcp-unofficial@0.6.5 doctor
+```
+
+### Cómo desconectarlo
+
+Si quieres cortar el acceso:
+
+1. `claude mcp remove whoop --scope user` y quita el bloque de
+   `claude_desktop_config.json`.
+2. Borra la carpeta `~/.whoop-mcp/`.
+3. Y para revocarlo del lado de WHOOP, elimina la app en
+   `developer.whoop.com`.
+
+---
+
 ## Extra · Un ejemplo: el dashboard
 
 Todo lo anterior es la instalación, y con eso ya puedes trabajar. Lo que sigue
