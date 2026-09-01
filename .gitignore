@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────
+#  SECRETOS — nunca subir
+# ─────────────────────────────────────────────────────────────
+ID.txt
+*.secret
+.env
+.env.*
+config.json
+tokens.json
+whoop-tokens.json
+pkce-*.json
+*.key
+*.pem
+
+# ─────────────────────────────────────────────────────────────
+#  DATOS PERSONALES DE SALUD — nunca subir
+#  Estos archivos contienen tu recovery, HRV, sueño, workouts
+#  y tu user_id de WHOOP.
+# ─────────────────────────────────────────────────────────────
+data/
+output/
+cycles.json
+recoveries.json
+sleeps.json
+workouts.json
+agg.json
+dashboard.html
+*.sqlite
+
+# ─────────────────────────────────────────────────────────────
+#  Basura habitual
+# ─────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
