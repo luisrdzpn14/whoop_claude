@@ -1,35 +1,74 @@
-# WHOOP + Claude — guía de instalación
+# WHOOP + Claude
 
-Conecta tus datos de WHOOP a Claude para poder preguntarle cosas en lenguaje
-normal, y genera un dashboard de tu carga de entrenamiento contra tu
-recuperación.
+**Conecta tu WHOOP a Claude en 15 minutos y pregúntale lo que quieras sobre
+tus propios datos.**
+
+Esto no es una app con funciones cerradas. Una vez conectado, Claude puede
+leer tu recuperación, tu sueño, tus entrenamientos y tus ciclos, y hacer con
+ellos lo que se te ocurra pedirle: analizar, comparar, graficar, exportar,
+escribir informes. Tú preguntas en lenguaje normal.
 
 Probado en **Windows 11** con Node 24 y Claude Code. Funciona igual en Mac y
 Linux, saltándote los avisos marcados como *"solo Windows"*.
 
 ---
 
-## Qué vas a poder hacer
+## Qué puedes hacer una vez conectado
 
-Cuando termines, podrás escribirle a Claude cosas como:
+Le escribes a Claude como le escribirías a un entrenador que tuviera acceso a
+todos tus datos. Algunas ideas para empezar:
 
+**Preguntas del día a día**
 - *"¿Cómo viene mi recovery esta semana?"*
-- *"¿Cuánto he dormido los últimos 14 días?"*
-- *"¿Mi HRV está bajando?"*
-- *"Compara mi strain con mi recuperación del último mes"*
-- *"¿Debería entrenar fuerte hoy?"*
+- *"¿Debería entrenar fuerte hoy o tocar descarga?"*
+- *"¿Cuánto dormí anoche y cómo se compara con mi media?"*
 
-Y con los scripts de este repo, generar un dashboard como este:
+**Buscar patrones y causas**
+- *"¿Mi HRV está bajando o es ruido?"*
+- *"¿Qué días de la semana duermo peor?"*
+- *"¿Hay relación entre lo que entreno y cómo me recupero?"*
+- *"¿Después de qué deporte me cuesta más recuperarme?"*
+- *"¿Qué pasó la semana del 15 de julio? Mis datos se ven raros"*
 
-```
-node scripts/fetch-data.js 90      # baja 90 días de tus datos
-node scripts/aggregate.js          # los agrega por semana
-node scripts/build-dashboard.js    # genera output/dashboard.html
-```
+**Sacar los datos a otro sitio**
+- *"Exporta mis últimos 90 días de sueño a CSV"*
+- *"Hazme una gráfica de mi strain semanal"*
+- *"Prepárame un resumen del mes para enseñárselo a mi entrenador"*
+
+**Cosas menos obvias**
+- *"Compara mi recuperación de este mes contra el anterior"*
+- *"¿Mi frecuencia cardíaca en reposo ha mejorado desde que empecé a correr?"*
+- *"Avísame qué métrica se me ha deteriorado más este trimestre"*
+
+Ninguna de estas está programada en ningún sitio. Claude tiene acceso a los
+datos y construye la respuesta que le pidas.
+
+### Las 23 herramientas que quedan disponibles
+
+Para que sepas hasta dónde llega. No necesitas invocarlas a mano — Claude
+elige la que toca — pero conviene conocer el terreno:
+
+| Área | Herramientas |
+|---|---|
+| **Recuperación** | `list_recoveries`, `get_cycle_recovery`, `recovery_trend` |
+| **Sueño** | `list_sleeps`, `get_sleep`, `get_cycle_sleep`, `sleep_trend` |
+| **Entrenamiento** | `list_workouts`, `get_workout` |
+| **Carga diaria** | `list_cycles`, `get_cycle` |
+| **Perfil** | `get_profile`, `get_body_measurements` |
+| **Resúmenes** | `daily_summary`, `weekly_summary`, `wellness_context` |
+| **Diagnóstico** | `connection_status`, `data_inventory`, `capabilities`, `privacy_audit`, `cache_status` |
+| **Gestión** | `revoke_access` ⚠️ (revoca tu acceso; se recupera repitiendo el Paso 3) |
+
+Todas son de **solo lectura** salvo `revoke_access`. Claude no puede modificar
+ni borrar nada en tu cuenta de WHOOP.
 
 > **Ojo con los pasos:** la API pública de WHOOP **no da pasos**. WHOOP mide
 > carga cardiovascular (*strain*), no es un podómetro. Si necesitas pasos,
 > tendrás que sacarlos de otro sitio.
+
+Los scripts de este repo (ver [más abajo](#extra--un-ejemplo-el-dashboard)) son
+**un ejemplo** de lo que se puede montar encima, no el objetivo del repo. El
+objetivo es que llegues al Paso 5 con la conexión funcionando.
 
 ---
 
@@ -198,11 +237,26 @@ Escríbele a Claude:
 
 > ¿Cómo viene mi recovery esta semana?
 
-Si responde con tus datos reales, ya está.
+Si responde con tus datos reales, **ya está: has terminado.**
+
+A partir de aquí no hay más que instalar. Vuelve a la sección
+[Qué puedes hacer](#qué-puedes-hacer-una-vez-conectado) y pídele lo que
+quieras. Si se te ocurre algo y no sabes si es posible, pregúntaselo
+directamente a Claude: tiene la lista de herramientas y te dirá si llega o no.
+
+Un truco: si Claude te dice que no está conectado, no le preguntes *si* lo
+está — pídele un dato concreto ("dame mi recovery de hoy"). Las herramientas
+MCP se cargan bajo demanda y a veces no las ve hasta que las necesita.
 
 ---
 
-## Extra · El dashboard
+## Extra · Un ejemplo: el dashboard
+
+Todo lo anterior es la instalación, y con eso ya puedes trabajar. Lo que sigue
+es **una cosa concreta que se puede montar encima**, para que veas el tipo de
+resultado que sale. Cópialo, modifícalo o ignóralo.
+
+La pregunta que responde: *¿mi entrenamiento está afectando a mi recuperación?*
 
 Con la conexión funcionando:
 
@@ -252,6 +306,10 @@ Las herramientas MCP se cargan bajo demanda. Pídele directamente un dato
 ---
 
 ## 🔒 Seguridad — léelo antes de subir nada a GitHub
+
+**Si vas a compartir este repo con alguien, que cada persona haga su propia
+app de WHOOP (Paso 1) y su propio `auth` (Paso 3).** Las credenciales no se
+comparten: cada uno accede solo a sus datos.
 
 Este repo trae un `.gitignore` que ya excluye lo peligroso. **No lo quites.**
 
